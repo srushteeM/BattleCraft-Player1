@@ -4,6 +4,7 @@ var edges;
 var fplayer1,fplayer2;
 var trident1,trident_img,trident2,trident2_img;
 var flag,flag1;
+var axe;
 function preload(){
 bg=loadImage("photos/background.png");
 player1_img=loadImage("photos/1noweapons1.png");
@@ -45,79 +46,63 @@ function setup() {
     trident2.addImage(trident2_img);
    trident2.scale=0.5
    trident2.visible=false;
+axe=true;
     flag=0;
     flag1=0;
 }
 function draw() {
   background(bg);  
+
+//------------------------------------PLAYER 1---------------------------------------------------------------
+
+//attach weapon positions to the player
   if(flag1===0){
     weapon.x=player1.x+50;
     weapon.y=player1.y-35;
     trident1.x=player1.x+50;
     trident1.y=player1.y-35; 
   }
-trident2.x=player2.x-50;
-trident2.y=player2.y-25;
-if(keyDown("m")){
-  weapon.visible=false;
-  trident1.visible=true;
-weapon2.visible=false;
-  trident2.visible=true;
-  trident1.x=player1.x+50;
-trident1.y=player1.y-35;
-  flag=1;
+
+//-------------------------------------------Movement while crouching-----------------------------------------
+player1.velocityY+=0.7;
+player1.collide(ground);
+if(keyDown(DOWN_ARROW)){
+ 
+  player1.y+=70;
+  if(keyDown(LEFT_ARROW)){
+    player1.x-=2;
+  }
+  if(keyDown(RIGHT_ARROW)){
+    player1.x+=2;
+  }
 }
-if(keyDown("n")){
-  trident1.visible=false;
-  weapon.visible=true;
-trident2.visible=false;
-  weapon2.visible=true;
-  flag=0;  
+
+//------------------------------------------Movement while standing--------------------------------------------
+if(keyDown(LEFT_ARROW)){
+  player1.x-=5;
+}
+if(keyDown(RIGHT_ARROW)){
+  player1.x+=5;
 }
 if(keyDown(UP_ARROW)&&player1.y>=327){
   player1.velocityY=-16;
 }
-player1.velocityY+=0.7;
-player1.collide(ground);
-if(keyDown(DOWN_ARROW)&&player1.y>=327){
-  player1.y=player1.y+70
-  player1.velocityX=0;
-  if(keyDown(LEFT_ARROW)){
-    player1.x-=2;
-    player2.x+=2;
-  }
-  if(keyDown(RIGHT_ARROW)){
-    player1.x+=2;
-    player2.x-=2;
-  }
-}
-if(keyDown(LEFT_ARROW)){
-  player1.x-=5;
-  player2.x+=4;
-}
-if(keyDown(RIGHT_ARROW)){
-  player1.x+=5;
-  player2.x-=4;
-}
+
+
+//-------------------------------------------Highlighting PLAYER 1--------------------------------------------
 ellipseMode(RADIUS);
 stroke("red");
 strokeWeight(10);
 fill("red");
 ellipse(player1.x,player1.y,30,50)
-weapon2.x=player2.x-50;
-weapon2.y=player2.y-35;
-player2.velocityY+=0.7;
-player2.collide(ground);
-ellipseMode(RADIUS);
-stroke("red");
-strokeWeight(10);
-fill("red");
-ellipse(player2.x,player2.y,30,50)
+
+//------------------------------------------Collide PLAYER 1 with edges----------------------------------------
 edges=createEdgeSprites();
 player1.collide(edges[0]);
 player1.collide(edges[1]);
-player2.collide(edges[0]);
-player2.collide(edges[1]);
+
+
+//------------------------------------------Change images if players cross each other-------------------------------------
 if(player1.x>player2.x){
   player1.addImage(fplayer1);
   player2.addImage(fplayer2);
@@ -135,27 +120,66 @@ trident2.y=player1.y-25;
   weapon.x=player1.x+50;
   weapon2.x=player2.x-50;
 }
-if(keyDown("space")&&weapon.visible===false&&weapon12.visible===false&&player2.y>=324.75){
+
+
+//-----------------------------------------Change the weapon------------------------------------------------- 
+if(keyDown("m")){
+  weapon.visible=false;
+  trident1.visible=true;
+  flag=1;
+  axe=false;
+}
+if(keyDown("n")){
+  trident1.visible=false;
+  weapon.visible=true;
+  flag=0;  
+  axe=true;
+}
+trident2.x=player2.x-50;
+trident2.y=player2.y-25;
+
+
+player1.velocityY+=0.7;
+//player1.collide(ground);
+
+//---------------------------------------Throwing Trident and Reseting Back-----------------------------------------------------
+if(keyDown("space")&&axe===false){
   flag1=1;
-  trident1.velocityX=50;
-  player2.velocityY=-15
-}
-if(keyDown("b")&&trident1.x>player2.x){
-    trident1.x=player1.x+50;
-    trident1.y=player1.y-35;
-    trident1.velocityX=0;
-    flag1=0
-}
-if(keyDown("space")&&trident1.visible===false){
+   trident1.velocityX=50;
+   //player2.velocityY=-15
+ 
+ }
+ if(trident1.x>player2.x){
+   trident1.x=player1.x+50;
+   flag1=0;
+ }
+ 
+ //----------------------------------------Movement of Axe-----------------------------------------------------------
+ if(keyDown("space")&&axe===true){
+  
   weapon.visible=false;
   weapon12.visible=true;
   weapon12.x=player1.x+50;
   weapon12.y=player1.y;  
-  flag1=0
-}else{
+}
+if(keyWentUp("space")&&axe===true){
+  
   weapon.visible=true;
   weapon12.visible=false;
+ 
 }
-console.log(trident1.velocityX)
+
+//---------------------------------------------------PLAYER2-----------------------------------------------------------
+weapon2.x=player2.x-50;
+weapon2.y=player2.y-35;
+player2.velocityY+=0.7;
+player2.collide(ground);
+
+player2.collide(edges[0]);
+player2.collide(edges[1]);
+
+
+
+
 drawSprites();
 }
